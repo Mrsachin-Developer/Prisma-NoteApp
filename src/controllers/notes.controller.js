@@ -141,29 +141,94 @@ export const updateNote = async (req, res) => {
   }
 };
 
-export const getAllNote = async (req, res) => {
+export const getNoteById = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const { id } = req.params;
 
-    const notes = await client.note.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
+    const note = await client.note.findUnique({
+      where: { id },
       select: {
         id: true,
         title: true,
         description: true,
+        createdAt: true,
+      },
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found",
+      });
+    }
+
+    if (note.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      note,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/// Pagination , search,sorting,date filters
+export const getNote = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { search, page = 1, limit = 5, sort = "desc" } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // base filter
+    const where = {
+      userId,
+    };
+    // search filter
+    if (search) {
+      where.title = {
+        contains: search,
+        mode: "insensitive",
+      };
+    }
+
+    const notes = await client.note.findMany({
+      where,
+      skip,
+      take: limitNumber,
+      orderBy: {
+        createdAt: sort === "asc" ? "asc" : "desc",
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createdAt: true,
       },
     });
 
     return res.status(200).json({
-      message: "All notes fetched",
       success: true,
+      page: pageNumber,
+      limit: limitNumber,
       notes,
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
       success: false,
+      message: error.message,
     });
   }
 };
