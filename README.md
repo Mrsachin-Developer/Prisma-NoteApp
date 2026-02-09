@@ -1,153 +1,144 @@
-# 📘 Day 2 — Notes App (One-to-Many Relations with Prisma)
+# 📝 Notes API --- Prisma + Express (Day 2 & Day 3 Project)
 
-## 🧠 Goal
-Build a Notes backend where:
+A production-style backend Notes API built with **Node.js, Express,
+Prisma, and PostgreSQL (Neon)**.\
+This project covers authentication, CRUD operations, filtering,
+pagination, and sorting.
 
-User → many Notes
+------------------------------------------------------------------------
 
-Learn relational database connections using **foreign keys** and Prisma relations.
+## 🚀 Features
 
----
+### 🔐 Authentication
 
-## 🚀 Features Implemented
-- Create note  
-- Get all notes of logged-in user  
-- Update note  
-- Delete note  
-- JWT-protected routes  
-- Prisma relations  
-- Ownership checks  
-- Clean API responses  
+-   JWT-based auth middleware
+-   Protected routes
+-   Each user can access only their notes
 
----
+### 🗂 Notes CRUD
 
-## 🗄️ Database Design
+-   Create note
+-   Update note
+-   Delete note
+-   Get single note
+-   Get all notes
 
-### Relation
-User (1) ───── (many) Note
+### 🔎 Query Features (Day 3)
 
-Each note belongs to one user.
+-   Search notes by title
+-   Pagination (`page`, `limit`)
+-   Sorting (`asc` / `desc`)
+-   User-based filtering
 
-So **Note table stores the foreign key**.
+------------------------------------------------------------------------
 
----
+## 🛠 Tech Stack
 
-## Prisma Schema
+-   Node.js
+-   Express
+-   Prisma ORM
+-   PostgreSQL (Neon)
+-   JWT Authentication
 
-```prisma
-model User {
-  id       String @id @default(uuid())
-  username String
-  email    String @unique
-  password String
+------------------------------------------------------------------------
 
-  notes    Note[]
-}
+## 📂 Project Structure
 
-model Note {
-  id          String   @id @default(uuid())
-  title       String
-  description String
+    src/
+     ├─ controllers/
+     │   └─ notes.controller.js
+     ├─ routes/
+     │   └─ notes.routes.js
+     ├─ middleware/
+     │   └─ auth.middleware.js
+     ├─ db.js
+     └─ server.js
 
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+------------------------------------------------------------------------
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
+## 📡 API Endpoints
 
----
+### Auth
 
-## 🔑 Key Concepts Learned
+    POST /api/auth/signup
+    POST /api/auth/login
 
-### Foreign Keys
-`userId` inside Note connects note → user.
+### Notes
 
-### Prisma Relations
-Defined using:
-```
-@relation(fields: [userId], references: [id])
-```
+    POST   /api/notes
+    GET    /api/notes
+    GET    /api/notes/:id
+    PUT    /api/notes/:id
+    DELETE /api/notes/:id
 
-### Cascade Delete
-```
-onDelete: Cascade
-```
-Deleting a user removes all their notes automatically.
+------------------------------------------------------------------------
 
-### Protected Routes (JWT)
-Token → verify → req.user.id → controller
+## 🔎 Query Examples
 
----
+### Pagination
 
-## 🛠️ API Routes
+    GET /api/notes?page=2&limit=5
 
-Base URL:
-```
-/api/notes
-```
+### Search
 
-| Method | Route | Description |
-|--------|------|------------|
-POST | `/` | Create note |
-GET | `/` | Get user notes |
-PUT | `/:id` | Update note |
-DELETE | `/:id` | Delete note |
+    GET /api/notes?search=physics
 
-All routes require:
-```
-Authorization: Bearer TOKEN
-```
+### Sorting
 
----
+    GET /api/notes?sort=asc
 
-## 🧾 Example Request
+### Combined
 
-### Create Note
-```
-POST /api/notes
-Authorization: Bearer token
-```
+    GET /api/notes?search=phy&page=1&limit=3&sort=desc
 
-Body:
-```json
-{
-  "title": "Physics",
-  "description": "Motion"
-}
-```
+------------------------------------------------------------------------
 
----
+## ⚙️ Setup Instructions
 
-## 🧱 Project Structure
-```
-project/
- ├── controllers/
- │   └── notes.controller.js
- ├── routes/
- │   └── notes.routes.js
- ├── middleware/
- │   └── auth.middleware.js
- ├── prisma/
- │   └── schema.prisma
- ├── server.js
- └── .env
-```
+### 1. Install dependencies
 
----
+    npm install
 
-## ⚙️ Tech Stack
-- Node.js  
-- Express  
-- Prisma ORM  
-- PostgreSQL  
-- JWT Authentication  
+### 2. Setup `.env`
 
----
+    DATABASE_URL=your_postgres_url
+    JWT_SECRET=your_secret
+    PORT=5000
 
-## 🏁 Status
-Day 2 complete. Fully functional Notes backend with relational data.
+### 3. Prisma setup
 
+    npx prisma generate
+    npx prisma db push
 
+### 4. Run server
 
+    npm run dev
+
+------------------------------------------------------------------------
+
+## 🧠 Concepts Learned
+
+-   Prisma relations (1 → many)
+-   JWT authentication
+-   Protected routes
+-   Dynamic queries
+-   Pagination logic
+-   Search filtering
+-   Sorting
+-   API design
+
+------------------------------------------------------------------------
+
+## 📈 Next Improvements
+
+-   Total pages & count
+-   Date filtering
+-   Many-to-many (Tags)
+-   Validation with Zod
+-   Production deployment
+
+------------------------------------------------------------------------
+
+## 👨‍💻 Author
+
+Backend practice project for learning Prisma & API design.
