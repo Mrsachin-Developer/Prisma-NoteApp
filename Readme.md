@@ -1,153 +1,144 @@
-# 📘 Day 2 — Notes App (One-to-Many Relations with Prisma)
+# 📝 Notes API --- Prisma + Express (Day 2 & Day 3 Project)
 
-## 🧠 Goal
-Build a Notes backend where:
-
-User → many Notes
-
-Learn relational database connections using **foreign keys** and Prisma relations.
+A production-style backend Notes API built with **Node.js, Express,
+Prisma, and PostgreSQL (Neon)**.\
+This project covers authentication, CRUD operations, filtering,
+pagination, and sorting.
 
 ---
 
-## 🚀 Features Implemented
-- Create note  
-- Get all notes of logged-in user  
-- Update note  
-- Delete note  
-- JWT-protected routes  
-- Prisma relations  
-- Ownership checks  
-- Clean API responses  
+## 🚀 Features
+
+### 🔐 Authentication
+
+- JWT-based auth middleware
+- Protected routes
+- Each user can access only their notes
+
+### 🗂 Notes CRUD
+
+- Create note
+- Update note
+- Delete note
+- Get single note
+- Get all notes
+
+### 🔎 Query Features (Day 3)
+
+- Search notes by title
+- Pagination (`page`, `limit`)
+- Sorting (`asc` / `desc`)
+- User-based filtering
 
 ---
 
-## 🗄️ Database Design
+## 🛠 Tech Stack
 
-### Relation
-User (1) ───── (many) Note
-
-Each note belongs to one user.
-
-So **Note table stores the foreign key**.
-
----
-
-## Prisma Schema
-
-```prisma
-model User {
-  id       String @id @default(uuid())
-  username String
-  email    String @unique
-  password String
-
-  notes    Note[]
-}
-
-model Note {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
+- Node.js
+- Express
+- Prisma ORM
+- PostgreSQL (Neon)
+- JWT Authentication
 
 ---
 
-## 🔑 Key Concepts Learned
+## 📂 Project Structure
 
-### Foreign Keys
-`userId` inside Note connects note → user.
-
-### Prisma Relations
-Defined using:
-```
-@relation(fields: [userId], references: [id])
-```
-
-### Cascade Delete
-```
-onDelete: Cascade
-```
-Deleting a user removes all their notes automatically.
-
-### Protected Routes (JWT)
-Token → verify → req.user.id → controller
+    src/
+     ├─ controllers/
+     │   └─ notes.controller.js
+     ├─ routes/
+     │   └─ notes.routes.js
+     ├─ middleware/
+     │   └─ auth.middleware.js
+     ├─ db.js
+     └─ server.js
 
 ---
 
-## 🛠️ API Routes
+## 📡 API Endpoints
 
-Base URL:
-```
-/api/notes
-```
+### Auth
 
-| Method | Route | Description |
-|--------|------|------------|
-POST | `/` | Create note |
-GET | `/` | Get user notes |
-PUT | `/:id` | Update note |
-DELETE | `/:id` | Delete note |
+    POST /api/auth/signup
+    POST /api/auth/login
 
-All routes require:
-```
-Authorization: Bearer TOKEN
-```
+### Notes
+
+    POST   /api/notes
+    GET    /api/notes
+    GET    /api/notes/:id
+    PUT    /api/notes/:id
+    DELETE /api/notes/:id
 
 ---
 
-## 🧾 Example Request
+## 🔎 Query Examples
 
-### Create Note
-```
-POST /api/notes
-Authorization: Bearer token
-```
+### Pagination
 
-Body:
-```json
-{
-  "title": "Physics",
-  "description": "Motion"
-}
-```
+    GET /api/notes?page=2&limit=5
 
----
+### Search
 
-## 🧱 Project Structure
-```
-project/
- ├── controllers/
- │   └── notes.controller.js
- ├── routes/
- │   └── notes.routes.js
- ├── middleware/
- │   └── auth.middleware.js
- ├── prisma/
- │   └── schema.prisma
- ├── server.js
- └── .env
-```
+    GET /api/notes?search=physics
+
+### Sorting
+
+    GET /api/notes?sort=asc
+
+### Combined
+
+    GET /api/notes?search=phy&page=1&limit=3&sort=desc
 
 ---
 
-## ⚙️ Tech Stack
-- Node.js  
-- Express  
-- Prisma ORM  
-- PostgreSQL  
-- JWT Authentication  
+## ⚙️ Setup Instructions
+
+### 1. Install dependencies
+
+    npm install
+
+### 2. Setup `.env`
+
+    DATABASE_URL=your_postgres_url
+    JWT_SECRET=your_secret
+    PORT=5000
+
+### 3. Prisma setup
+
+    npx prisma generate
+    npx prisma db push
+
+### 4. Run server
+
+    npm run dev
 
 ---
 
-## 🏁 Status
-Day 2 complete. Fully functional Notes backend with relational data.
+## 🧠 Concepts Learned
 
+- Prisma relations (1 → many)
+- JWT authentication
+- Protected routes
+- Dynamic queries
+- Pagination logic
+- Search filtering
+- Sorting
+- API design
 
+---
 
+## 📈 Next Improvements
+
+- Total pages & count
+- Date filtering
+- Many-to-many (Tags)
+- Validation with Zod
+- Production deployment
+
+---
+
+## 👨‍💻 Author
+
+Backend practice project for learning Prisma & API design.
