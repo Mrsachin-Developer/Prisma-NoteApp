@@ -1,144 +1,153 @@
-# 📝 Notes API --- Prisma + Express (Day 2 & Day 3 Project)
+# 📘 Day 2 — Notes App (One-to-Many Relations with Prisma)
 
-A production-style backend Notes API built with **Node.js, Express,
-Prisma, and PostgreSQL (Neon)**.\
-This project covers authentication, CRUD operations, filtering,
-pagination, and sorting.
+## 🧠 Goal
+Build a Notes backend where:
 
----
+User → many Notes
 
-## 🚀 Features
-
-### 🔐 Authentication
-
-- JWT-based auth middleware
-- Protected routes
-- Each user can access only their notes
-
-### 🗂 Notes CRUD
-
-- Create note
-- Update note
-- Delete note
-- Get single note
-- Get all notes
-
-### 🔎 Query Features (Day 3)
-
-- Search notes by title
-- Pagination (`page`, `limit`)
-- Sorting (`asc` / `desc`)
-- User-based filtering
+Learn relational database connections using **foreign keys** and Prisma relations.
 
 ---
 
-## 🛠 Tech Stack
-
-- Node.js
-- Express
-- Prisma ORM
-- PostgreSQL (Neon)
-- JWT Authentication
-
----
-
-## 📂 Project Structure
-
-    src/
-     ├─ controllers/
-     │   └─ notes.controller.js
-     ├─ routes/
-     │   └─ notes.routes.js
-     ├─ middleware/
-     │   └─ auth.middleware.js
-     ├─ db.js
-     └─ server.js
+## 🚀 Features Implemented
+- Create note  
+- Get all notes of logged-in user  
+- Update note  
+- Delete note  
+- JWT-protected routes  
+- Prisma relations  
+- Ownership checks  
+- Clean API responses  
 
 ---
 
-## 📡 API Endpoints
+## 🗄️ Database Design
 
-### Auth
+### Relation
+User (1) ───── (many) Note
 
-    POST /api/auth/signup
-    POST /api/auth/login
+Each note belongs to one user.
 
-### Notes
-
-    POST   /api/notes
-    GET    /api/notes
-    GET    /api/notes/:id
-    PUT    /api/notes/:id
-    DELETE /api/notes/:id
+So **Note table stores the foreign key**.
 
 ---
 
-## 🔎 Query Examples
+## Prisma Schema
 
-### Pagination
+```prisma
+model User {
+  id       String @id @default(uuid())
+  username String
+  email    String @unique
+  password String
 
-    GET /api/notes?page=2&limit=5
+  notes    Note[]
+}
 
-### Search
+model Note {
+  id          String   @id @default(uuid())
+  title       String
+  description String
 
-    GET /api/notes?search=physics
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-### Sorting
-
-    GET /api/notes?sort=asc
-
-### Combined
-
-    GET /api/notes?search=phy&page=1&limit=3&sort=desc
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Install dependencies
-
-    npm install
-
-### 2. Setup `.env`
-
-    DATABASE_URL=your_postgres_url
-    JWT_SECRET=your_secret
-    PORT=5000
-
-### 3. Prisma setup
-
-    npx prisma generate
-    npx prisma db push
-
-### 4. Run server
-
-    npm run dev
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
 
 ---
 
-## 🧠 Concepts Learned
+## 🔑 Key Concepts Learned
 
-- Prisma relations (1 → many)
-- JWT authentication
-- Protected routes
-- Dynamic queries
-- Pagination logic
-- Search filtering
-- Sorting
-- API design
+### Foreign Keys
+`userId` inside Note connects note → user.
+
+### Prisma Relations
+Defined using:
+```
+@relation(fields: [userId], references: [id])
+```
+
+### Cascade Delete
+```
+onDelete: Cascade
+```
+Deleting a user removes all their notes automatically.
+
+### Protected Routes (JWT)
+Token → verify → req.user.id → controller
 
 ---
 
-## 📈 Next Improvements
+## 🛠️ API Routes
 
-- Total pages & count
-- Date filtering
-- Many-to-many (Tags)
-- Validation with Zod
-- Production deployment
+Base URL:
+```
+/api/notes
+```
+
+| Method | Route | Description |
+|--------|------|------------|
+POST | `/` | Create note |
+GET | `/` | Get user notes |
+PUT | `/:id` | Update note |
+DELETE | `/:id` | Delete note |
+
+All routes require:
+```
+Authorization: Bearer TOKEN
+```
 
 ---
 
-## 👨‍💻 Author
+## 🧾 Example Request
 
-Backend practice project for learning Prisma & API design.
+### Create Note
+```
+POST /api/notes
+Authorization: Bearer token
+```
+
+Body:
+```json
+{
+  "title": "Physics",
+  "description": "Motion"
+}
+```
+
+---
+
+## 🧱 Project Structure
+```
+project/
+ ├── controllers/
+ │   └── notes.controller.js
+ ├── routes/
+ │   └── notes.routes.js
+ ├── middleware/
+ │   └── auth.middleware.js
+ ├── prisma/
+ │   └── schema.prisma
+ ├── server.js
+ └── .env
+```
+
+---
+
+## ⚙️ Tech Stack
+- Node.js  
+- Express  
+- Prisma ORM  
+- PostgreSQL  
+- JWT Authentication  
+
+---
+
+## 🏁 Status
+Day 2 complete. Fully functional Notes backend with relational data.
+
+
+
