@@ -1,15 +1,22 @@
+import { tr } from "zod/locales";
 import client from "../db.js";
-
+import {
+  createNoteSchema,
+  querySchema,
+  updateNoteSchema,
+} from "../validators/note.validator.js";
 export const addNote = async (req, res) => {
   try {
-    const { title, description } = req.body;
-
-    if (!title?.trim() || !description?.trim()) {
+    //Zod Validation
+    const parsed = createNoteSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
-        message: "Title and description are required",
         success: false,
+        message: parsed.error.errors[0].message,
       });
     }
+
+    const { title, description, tags = [] } = parsed.data;
 
     const userId = req.user.id;
     if (!userId) {
@@ -24,12 +31,24 @@ export const addNote = async (req, res) => {
         title: title.trim(),
         description: description.trim(),
         userId,
+        tags: {
+          connectOrCreate: tags.map((tag) => ({
+            where: { name: tag.toLowerCase().trim() }, //look in the Tag table for an existing tag with that name
+            create: { name: tag.toLowerCase().trim() }, //If not found → create the tag → then connect
+          })),
+        },
       },
 
       select: {
         id: true,
         title: true,
         description: true,
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -87,7 +106,16 @@ export const deleteNote = async (req, res) => {
 export const updateNote = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+
+    const parsed = updateNoteSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: parsed.error.errors[0].message,
+      });
+    }
+
+    const { title, description } = parsed.data;
 
     const note = await client.note.findUnique({ where: { id } });
 
@@ -152,6 +180,7 @@ export const getNoteById = async (req, res) => {
         title: true,
         description: true,
         createdAt: true,
+        userId: true,
       },
     });
 
@@ -185,7 +214,22 @@ export const getNoteById = async (req, res) => {
 export const getNote = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { search, page = 1, limit = 5, sort = "desc" } = req.query;
+
+    const parsedQuery = querySchema.safeParse(req.query);
+
+    if (!parsedQuery.success) {
+      return res.status(400).json({
+        success: false,
+        message: parsedQuery.error.errors[0].message,
+      });
+    }
+    const {
+      search,
+      tag,
+      page = 1,
+      limit = 5,
+      sort = "desc",
+    } = parsedQuery.data;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -204,6 +248,16 @@ export const getNote = async (req, res) => {
       };
     }
 
+    if (tag) {
+      where.tags = {
+        some: {
+          // check at least one tag has name that matches
+          name: tag.toLowerCase().trim(),
+        },
+      };
+    }
+    const totalNotes = await client.note.count({ where });
+    const totalPage = Math.ceil(totalNotes / limitNumber);
     const notes = await client.note.findMany({
       where,
       skip,
@@ -216,6 +270,12 @@ export const getNote = async (req, res) => {
         title: true,
         description: true,
         createdAt: true,
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -223,6 +283,8 @@ export const getNote = async (req, res) => {
       success: true,
       page: pageNumber,
       limit: limitNumber,
+      totalNotes,
+      totalPage,
       notes,
     });
   } catch (error) {
