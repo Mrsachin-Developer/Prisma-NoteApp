@@ -1,11 +1,9 @@
-# 📘 Day 2 — Notes App (One-to-Many Relations with Prisma)
+# 📝 Notes API --- Production Ready Backend (Prisma + Express)
 
-## 🧠 Goal
-Build a Notes backend where:
-
-User → many Notes
-
-Learn relational database connections using **foreign keys** and Prisma relations.
+A production-style backend Notes API built with **Node.js, Express,
+Prisma, and PostgreSQL (Neon)**.\
+This project demonstrates real-world backend architecture including
+authentication, pagination, validation, and many-to-many relations.
 
 ---
 

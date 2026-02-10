@@ -1,9 +1,9 @@
-# 📝 Notes API --- Prisma + Express (Day 2 & Day 3 Project)
+# 📝 Notes API --- Production Ready Backend (Prisma + Express)
 
 A production-style backend Notes API built with **Node.js, Express,
 Prisma, and PostgreSQL (Neon)**.\
-This project covers authentication, CRUD operations, filtering,
-pagination, and sorting.
+This project demonstrates real-world backend architecture including
+authentication, pagination, validation, and many-to-many relations.
 
 ---
 
@@ -11,34 +11,48 @@ pagination, and sorting.
 
 ### 🔐 Authentication
 
-- JWT-based auth middleware
-- Protected routes
-- Each user can access only their notes
+- JWT-based auth middleware\
+- Protected routes\
+- User-specific data access
 
 ### 🗂 Notes CRUD
 
-- Create note
-- Update note
-- Delete note
-- Get single note
+- Create note\
+- Update note\
+- Delete note\
+- Get single note\
 - Get all notes
 
-### 🔎 Query Features (Day 3)
+### 🏷 Tags System (Many-to-Many)
 
-- Search notes by title
-- Pagination (`page`, `limit`)
-- Sorting (`asc` / `desc`)
-- User-based filtering
+- Add tags while creating notes\
+- Auto-create tag if not exists\
+- Connect existing tags\
+- Filter notes by tag
+
+### 🔎 Query Features
+
+- Search notes by title\
+- Filter by tag\
+- Pagination (`page`, `limit`)\
+- Sorting (`asc` / `desc`)\
+- Total pages & total count
+
+### 🛡 Validation
+
+- Zod validation for body & query\
+- Prevent invalid input
 
 ---
 
 ## 🛠 Tech Stack
 
-- Node.js
-- Express
-- Prisma ORM
-- PostgreSQL (Neon)
-- JWT Authentication
+- Node.js\
+- Express\
+- Prisma ORM\
+- PostgreSQL (Neon)\
+- JWT Authentication\
+- Zod Validation
 
 ---
 
@@ -51,6 +65,8 @@ pagination, and sorting.
      │   └─ notes.routes.js
      ├─ middleware/
      │   └─ auth.middleware.js
+     ├─ validators/
+     │   └─ note.validator.js
      ├─ db.js
      └─ server.js
 
@@ -60,85 +76,37 @@ pagination, and sorting.
 
 ### Auth
 
-    POST /api/auth/signup
-    POST /api/auth/login
+POST /api/auth/signup\
+POST /api/auth/login
 
 ### Notes
 
-    POST   /api/notes
-    GET    /api/notes
-    GET    /api/notes/:id
-    PUT    /api/notes/:id
-    DELETE /api/notes/:id
+POST /api/notes\
+GET /api/notes\
+GET /api/notes/:id\
+PUT /api/notes/:id\
+DELETE /api/notes/:id
 
 ---
 
 ## 🔎 Query Examples
 
-### Pagination
-
-    GET /api/notes?page=2&limit=5
-
-### Search
-
-    GET /api/notes?search=physics
-
-### Sorting
-
-    GET /api/notes?sort=asc
-
-### Combined
-
-    GET /api/notes?search=phy&page=1&limit=3&sort=desc
+GET /api/notes?page=2&limit=5\
+GET /api/notes?search=physics\
+GET /api/notes?tag=study\
+GET /api/notes?tag=study&search=phy&page=1&limit=5&sort=desc
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Setup
 
-### 1. Install dependencies
-
-    npm install
-
-### 2. Setup `.env`
-
-    DATABASE_URL=your_postgres_url
-    JWT_SECRET=your_secret
-    PORT=5000
-
-### 3. Prisma setup
-
-    npx prisma generate
-    npx prisma db push
-
-### 4. Run server
-
-    npm run dev
-
----
-
-## 🧠 Concepts Learned
-
-- Prisma relations (1 → many)
-- JWT authentication
-- Protected routes
-- Dynamic queries
-- Pagination logic
-- Search filtering
-- Sorting
-- API design
-
----
-
-## 📈 Next Improvements
-
-- Total pages & count
-- Date filtering
-- Many-to-many (Tags)
-- Validation with Zod
-- Production deployment
+npm install\
+npx prisma generate\
+npx prisma db push\
+npm run dev
 
 ---
 
 ## 👨‍💻 Author
 
-Backend practice project for learning Prisma & API design.
+Backend portfolio project demonstrating production-ready API design.
